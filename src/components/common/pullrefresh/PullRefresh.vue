@@ -18,7 +18,9 @@
     </div>
 </template>
 <script>
-import { Scroller, Divider, Group, Spinner } from 'vux'
+import  Scroller from 'vux/src/components/scroller'
+//import { Scroller, Divider, Group, Spinner } from 'vux'
+import {  Divider, Group, Spinner } from 'vux'
 export default {
     name: 'youfanpullrefresh',
     props: {
@@ -116,23 +118,29 @@ export default {
                     }
                     if(response.body.data.total<this.pageNum+1){
             
-                        if(type == 2 && this.countObj.up>1){
-                            isReset = true 
+                        if(type == 2){
+                             this.$nextTick(function(){
+                                this.$broadcast('pullup:reset', this.$refs.scroller.uuid)
+                            })
+                            if(this.countObj.up>1){
+                                isReset = true 
+                            }
+                           
                         }
-                        else if(type == 1 && this.countObj.down>0){
-                            isReset = true 
-                            //console.log('down:',this.countObj.down)
+                        else if(type == 1 ){
+                            this.$nextTick(function(){
+                                this.$broadcast('pulldown:reset', this.$refs.scroller.uuid)
+                            })
+                            if( this.countObj.down>0){
+                                 isReset = true 
+                            }
                         }
-                       // console.log('ddd')
-                        this.$nextTick(function(){
-                            this.$broadcast('pullup:reset', this.$refs.scroller.uuid)
-                        })
                     }
                      for (let i in data) {
                     
                         if (type == 2) {
                        
-                        qaList.push(data[i]);
+                            qaList.push(data[i]);
 
                         } else {
                             
@@ -158,7 +166,6 @@ export default {
                         {
                             this.$broadcast('pulldown:reset', this.$refs.scroller.uuid)
                         }
-
                     });
 
                 }
@@ -172,14 +179,14 @@ export default {
         },
         updateData (p_params){
             this.$refs.scroller.pullup.xscroll.scrollTo(0,0);
+            this.$broadcast('scroller:reset', this.$refs.scroller.uuid)
             this.$broadcast('pullup:enable', this.$refs.scroller.uuid)
             this.countObj.up = 0;
             this.countObj.down = 0
             this.urlParam = p_params;
             this.getData({page: 1},GlobalModel.PULL_UP);
             this.$nextTick(function(){
-                this.$broadcast('pullup:reset', this.$refs.scroller.uuid)
-                this.$broadcast('pulldown:reset', this.$refs.scroller.uuid)
+                this.$refs.scroller.pullupStatus = 'loading';
             })
         }
 
